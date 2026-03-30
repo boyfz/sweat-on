@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "703863423837",
+    "project_id": "sweaton-3c948",
+    "storage_bucket": "sweaton-3c948.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:703863423837:android:63767ac0e205f4048bdeb4",
+        "android_client_info": {
+          "package_name": "com.example.sweaton"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCacHK-fjzwtpoyzNJ-9gWBtL82o4qkQOs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
