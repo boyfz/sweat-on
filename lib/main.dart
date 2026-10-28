@@ -14,7 +14,7 @@ void main() async {
       );
     }
   } catch (e) {
-    print('[WARNING] Firebase already initialized: $e');
+    debugPrint('[WARNING] Firebase already initialized: $e');
   }
 
   runApp(const SweatOnApp());

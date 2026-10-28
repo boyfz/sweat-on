@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import '../../utils/booking_time.dart';
 import 'booking_success_page.dart';
 import 'mock_card_payment_page.dart';
 
@@ -43,18 +44,32 @@ class _PaymentPageState extends State<PaymentPage> {
 
     final totalPrice = widget.pricePerHour * widget.durationHours;
 
+    // Someone may have booked this slot while the user was paying.
+    if (!await _isSlotStillAvailable()) {
+      throw Exception('This time slot was just booked by someone else.');
+    }
+
     await FirebaseFirestore.instance.collection('bookings').add({
       'uid': user.uid,
       'email': user.email,
       'venue': widget.venueName,
       'venueAddress': widget.venueAddress,
       'date': widget.date.toIso8601String(),
-      'startTime': widget.startTime.format(context),
+      'startTime': formatStoredTime(widget.startTime),
       'durationHours': widget.durationHours,
       'pricePerHour': widget.pricePerHour,
       'totalPrice': totalPrice,
       'createdAt': FieldValue.serverTimestamp(),
     });
+  }
+
+  Future<bool> _isSlotStillAvailable() async {
+    final bookings = await fetchVenueBookings(widget.venueName, widget.date);
+    return !overlapsExistingBooking(
+      bookings,
+      widget.startTime,
+      widget.durationHours,
+    );
   }
 
   Future<void> _handlePayment() async {
@@ -70,6 +85,28 @@ class _PaymentPageState extends State<PaymentPage> {
     }
 
     final amount = widget.pricePerHour * widget.durationHours;
+
+    setState(() => _isProcessing = true);
+    bool available;
+    try {
+      available = await _isSlotStillAvailable();
+    } catch (e) {
+      available = false;
+    }
+    if (!mounted) return;
+    setState(() => _isProcessing = false);
+
+    if (!available) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'This time slot is no longer available. Please choose another time.',
+          ),
+        ),
+      );
+      Navigator.pop(context);
+      return;
+    }
 
     final paymentSuccess = await Navigator.push<bool>(
       context,
@@ -90,6 +127,7 @@ class _PaymentPageState extends State<PaymentPage> {
           );
         }
       } catch (e) {
+        if (!mounted) return;
         setState(() => _isProcessing = false);
         ScaffoldMessenger.of(
           context,

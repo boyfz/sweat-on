@@ -51,6 +51,7 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
             .collection('users')
             .doc(user.uid)
             .update({'phone': _phoneController.text.trim()});
+        if (!mounted) return;
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Account details updated.')),
@@ -59,11 +60,13 @@ class _AccountDetailsPageState extends State<AccountDetailsPage> {
         Navigator.pop(context); // ✅ Go back to Profile Page
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

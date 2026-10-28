@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../utils/booking_time.dart';
 import 'payment_page.dart';
 
 class BookingDetailsPage extends StatefulWidget {
@@ -8,7 +8,8 @@ class BookingDetailsPage extends StatefulWidget {
   final String venueAddress;
   final double pricePerHour;
 
-  BookingDetailsPage({
+  const BookingDetailsPage({
+    super.key,
     required this.venueName,
     required this.venueType,
     required this.venueAddress,
@@ -16,7 +17,7 @@ class BookingDetailsPage extends StatefulWidget {
   });
 
   @override
-  _BookingDetailsPageState createState() => _BookingDetailsPageState();
+  State<BookingDetailsPage> createState() => _BookingDetailsPageState();
 }
 
 class _BookingDetailsPageState extends State<BookingDetailsPage> {
@@ -90,35 +91,14 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
   Future<void> _loadAvailableStartTimes() async {
     if (selectedDate == null || durationHours == null) return;
 
-    final dateStr = selectedDate!.toIso8601String();
-    final snapshot =
-        await FirebaseFirestore.instance
-            .collection('bookings')
-            .where('venue', isEqualTo: widget.venueName)
-            .where('date', isEqualTo: dateStr)
-            .get();
-
-    final bookings = snapshot.docs.map((doc) => doc.data()).toList();
+    final bookings = await fetchVenueBookings(widget.venueName, selectedDate!);
 
     List<TimeOfDay> available = [];
 
     for (var candidate in allStartTimes) {
-      final candidateStart = candidate.hour * 60 + candidate.minute;
-      final candidateEnd = candidateStart + durationHours! * 60;
-
-      bool overlaps = bookings.any((b) {
-        final timeStr = b['startTime'];
-        if (timeStr == null || timeStr.isEmpty) return false;
-
-        final existing = _parseTimeOfDay(timeStr);
-        final existingStart = existing.hour * 60 + existing.minute;
-        final existingEnd =
-            existingStart + (b['durationHours'] as num).toInt() * 60;
-
-        return candidateStart < existingEnd && existingStart < candidateEnd;
-      });
-
-      if (!overlaps) available.add(candidate);
+      if (!overlapsExistingBooking(bookings, candidate, durationHours!)) {
+        available.add(candidate);
+      }
     }
 
     setState(() => filteredStartTimes = available);
@@ -160,17 +140,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  TimeOfDay _parseTimeOfDay(String str) {
-    final match = RegExp(r'(\d{1,2}):(\d{2})\s?(AM|PM)').firstMatch(str);
-    if (match == null) return const TimeOfDay(hour: 0, minute: 0);
-    int hour = int.parse(match.group(1)!);
-    int minute = int.parse(match.group(2)!);
-    String period = match.group(3)!;
-    if (period == 'PM' && hour != 12) hour += 12;
-    if (period == 'AM' && hour == 12) hour = 0;
-    return TimeOfDay(hour: hour, minute: minute);
   }
 
   @override

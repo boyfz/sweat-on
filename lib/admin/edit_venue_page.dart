@@ -52,7 +52,7 @@ class _EditVenuePageState extends State<EditVenuePage> {
         return await ref.getDownloadURL();
       }
     } catch (e) {
-      print('Image upload error: $e');
+      debugPrint('Image upload error: $e');
     }
     return null;
   }
@@ -65,6 +65,7 @@ class _EditVenuePageState extends State<EditVenuePage> {
     String imageUrl = _existingImageUrl ?? '';
     if (_newImageFile != null) {
       final uploadedUrl = await _uploadImage(_newImageFile!);
+      if (!mounted) return;
       if (uploadedUrl != null) {
         imageUrl = uploadedUrl;
       } else {
@@ -91,9 +92,11 @@ class _EditVenuePageState extends State<EditVenuePage> {
         Navigator.pop(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to update venue: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to update venue: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -234,7 +237,7 @@ class _EditVenuePageState extends State<EditVenuePage> {
           ),
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.4),
               child: const Center(child: CircularProgressIndicator()),
             ),
         ],

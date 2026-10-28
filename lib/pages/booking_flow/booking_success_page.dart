@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 class BookingSuccessPage extends StatelessWidget {
   final Color primaryColor = const Color(0xFF4B39EF);
 
+  const BookingSuccessPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

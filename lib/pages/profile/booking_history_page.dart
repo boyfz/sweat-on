@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../utils/booking_time.dart';
 
 class BookingHistoryPage extends StatefulWidget {
   const BookingHistoryPage({super.key});
@@ -42,8 +43,8 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
     if (bookingDate == null) return 'Unknown';
 
     try {
-      final timeFormat = DateFormat.jm(); // parses times like "2:00 PM"
-      final startTimeParsed = timeFormat.parse(startTimeStr);
+      final startTimeParsed = parseStoredTime(startTimeStr);
+      if (startTimeParsed == null) throw FormatException(startTimeStr);
 
       final startDateTime = DateTime(
         bookingDate.year,

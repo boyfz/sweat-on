@@ -190,25 +190,33 @@ class _CreateTeamFormPageState extends State<CreateTeamFormPage> {
           (_) => Center(child: CircularProgressIndicator(color: primaryColor)),
     );
 
-    await FirebaseFirestore.instance.collection('teams').add({
-      'sport': selectedSport,
-      'venueName': _venueNameController.text.trim(),
-      'venueAddress': _venueAddressController.text.trim(),
-      'latitude': double.tryParse(_venueLatController.text.trim()) ?? 0.0,
-      'longitude': double.tryParse(_venueLngController.text.trim()) ?? 0.0,
-      'phoneNumber': _userPhoneNumber ?? '',
-      'createdBy': user!.uid,
-      'createdByName': _userFullName ?? '',
-      'description': _descriptionController.text.trim(),
-      'date': Timestamp.fromDate(selectedDate!),
-      'startTime': selectedStartTime!.format(context),
-      'duration': selectedDuration,
-      'positions': Map<String, int>.from(positions),
-      'playersNeeded': selectedPlayersNeeded,
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    try {
+      await FirebaseFirestore.instance.collection('teams').add({
+        'sport': selectedSport,
+        'venueName': _venueNameController.text.trim(),
+        'venueAddress': _venueAddressController.text.trim(),
+        'latitude': double.tryParse(_venueLatController.text.trim()) ?? 0.0,
+        'longitude': double.tryParse(_venueLngController.text.trim()) ?? 0.0,
+        'phoneNumber': _userPhoneNumber ?? '',
+        'createdBy': user!.uid,
+        'createdByName': _userFullName ?? '',
+        'description': _descriptionController.text.trim(),
+        'date': Timestamp.fromDate(selectedDate!),
+        'startTime': selectedStartTime!.format(context),
+        'duration': selectedDuration,
+        'positions': Map<String, int>.from(positions),
+        'playersNeeded': selectedPlayersNeeded,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close loading dialog
+      showError('Failed to create team: $e');
+      return;
+    }
 
-    if (mounted) Navigator.of(context).pop();
+    if (!mounted) return;
+    Navigator.of(context).pop();
 
     Navigator.pushReplacement(
       context,

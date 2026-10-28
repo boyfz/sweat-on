@@ -1,4 +1,3 @@
-// ... [Unchanged imports and class declaration remain above this line]
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,37 +18,17 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
-  bool _showAccountCreatedMessage = false;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_showAccountCreatedMessage) {
-      Future.microtask(() {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account created! Please log in.')),
-        );
-        _showAccountCreatedMessage = false;
-      });
-    }
-  }
-
-  void _navigateToRegisterPage() async {
-    final result = await Navigator.push<bool>(
+  void _navigateToRegisterPage() {
+    // RegisterPage shows its own success dialog before calling back.
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder:
-            (_) => RegisterPage(
-              onRegisterSuccess: () => Navigator.pop(context, true),
-            ),
+            (_) =>
+                RegisterPage(onRegisterSuccess: () => Navigator.pop(context)),
       ),
     );
-
-    if (result == true) {
-      setState(() {
-        _showAccountCreatedMessage = true;
-      });
-    }
   }
 
   void _loginUser() async {
@@ -71,9 +50,11 @@ class _LoginPageState extends State<LoginPage> {
       final uid = credential.user!.uid;
       final doc =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (!mounted) return;
 
       if (doc.exists && doc.data()?['isDisabled'] == true) {
         await FirebaseAuth.instance.signOut();
+        if (!mounted) return;
         _showError(
           'Your account has been disabled by admin. Please contact SweatOn Support (sweaton@gmail.com) for further assistance.',
         );
@@ -115,18 +96,18 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           pageBuilder:
-              (_, __, ___) =>
+              (_, _, _) =>
                   isAdmin
                       ? const AdminMainNavigation()
                       : MainNavigation(userEmail: email),
-          transitionsBuilder: (_, animation, __, child) {
+          transitionsBuilder: (_, animation, _, child) {
             return FadeTransition(opacity: animation, child: child);
           },
           transitionDuration: const Duration(milliseconds: 600),
         ),
       );
     } on FirebaseAuthException catch (e) {
-      print('Firebase login error code: ${e.code}');
+      debugPrint('Firebase login error code: ${e.code}');
       String errorMessage;
       switch (e.code) {
         case 'user-not-found':
@@ -162,6 +143,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _showError(String message) {
+    if (!mounted) return;
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
@@ -198,6 +180,7 @@ class _LoginPageState extends State<LoginPage> {
     FirebaseAuth.instance
         .sendPasswordResetEmail(email: email)
         .then((_) {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Password reset email sent.')),
           );
@@ -228,7 +211,7 @@ class _LoginPageState extends State<LoginPage> {
               margin: const EdgeInsets.symmetric(horizontal: 24),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.96),
+                color: Colors.white.withValues(alpha: 0.96),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(32),
                   bottomRight: Radius.circular(32),

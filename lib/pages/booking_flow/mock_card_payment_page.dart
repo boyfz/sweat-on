@@ -25,6 +25,7 @@ class _MockCardPaymentPageState extends State<MockCardPaymentPage> {
 
     setState(() => isProcessing = true);
     await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
     setState(() => isProcessing = false);
 
     Navigator.pop(context, true); // returns true to indicate success

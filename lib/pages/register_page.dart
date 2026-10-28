@@ -5,10 +5,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class RegisterPage extends StatefulWidget {
   final VoidCallback onRegisterSuccess;
 
-  const RegisterPage({required this.onRegisterSuccess});
+  const RegisterPage({super.key, required this.onRegisterSuccess});
 
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
 class _RegisterPageState extends State<RegisterPage> {
@@ -84,6 +84,7 @@ class _RegisterPageState extends State<RegisterPage> {
           'createdAt': Timestamp.now(),
         });
       }
+      if (!mounted) return;
 
       setState(() => _isLoading = false);
 
@@ -105,6 +106,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
       );
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
       _showError('Registration failed: ${e.toString()}');
     }

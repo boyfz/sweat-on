@@ -38,6 +38,7 @@ class _AdminVenueListPageState extends State<AdminVenueListPage> {
 
     if (confirmed == true) {
       await docRef.delete();
+      if (!context.mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Venue deleted')));
@@ -113,7 +114,7 @@ class _AdminVenueListPageState extends State<AdminVenueListPage> {
                 return ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: venues.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  separatorBuilder: (_, _) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final doc = venues[index];
                     final data = doc.data() as Map<String, dynamic>;
@@ -136,7 +137,7 @@ class _AdminVenueListPageState extends State<AdminVenueListPage> {
                         border: Border.all(color: Colors.grey.shade300),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
+                            color: Colors.grey.withValues(alpha: 0.1),
                             blurRadius: 6,
                             offset: const Offset(0, 3),
                           ),

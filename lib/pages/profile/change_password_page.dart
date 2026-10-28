@@ -67,6 +67,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       // Re-authenticate and update password
       await user.reauthenticateWithCredential(credential);
       await user.updatePassword(newPassword);
+      if (!mounted) return;
 
       setState(() => _isLoading = false);
 
@@ -89,9 +90,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             ),
       );
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
 
-      if (e.code == 'wrong-password') {
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
         _showError('Current password is incorrect.');
       } else {
         _showError('Failed to change password. Please try again later.');
@@ -207,7 +209,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           ),
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.4),
               child: const Center(child: CircularProgressIndicator()),
             ),
         ],

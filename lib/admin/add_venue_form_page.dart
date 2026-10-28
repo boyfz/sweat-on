@@ -26,7 +26,7 @@ class _AddVenueFormPageState extends State<AddVenueFormPage> {
   final List<String> _venueTypes = ['Futsal', 'Football'];
   final Color primaryColor = const Color(0xFF4B39EF);
 
-  Map<String, bool> _facilities = {
+  final Map<String, bool> _facilities = {
     'Parking': false,
     'Toilet': false,
     'Changing Room': false,
@@ -51,7 +51,7 @@ class _AddVenueFormPageState extends State<AddVenueFormPage> {
         return null;
       }
     } catch (e) {
-      print('Upload error: $e');
+      debugPrint('Upload error: $e');
       return null;
     }
   }
@@ -70,6 +70,7 @@ class _AddVenueFormPageState extends State<AddVenueFormPage> {
     setState(() => _isLoading = true);
 
     final imageUrl = await _uploadImage(_imageFile!);
+    if (!mounted) return;
     if (imageUrl == null) {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(
@@ -100,19 +101,21 @@ class _AddVenueFormPageState extends State<AddVenueFormPage> {
         'isVisible': true,
       });
 
-      if (context.mounted) {
+      if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Venue added successfully!')),
         );
       }
     } catch (e) {
-      print('Add venue error: $e');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      debugPrint('Add venue error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -317,7 +320,7 @@ class _AddVenueFormPageState extends State<AddVenueFormPage> {
             ),
             if (_isLoading)
               Container(
-                color: Colors.black.withOpacity(0.4),
+                color: Colors.black.withValues(alpha: 0.4),
                 child: const Center(child: CircularProgressIndicator()),
               ),
           ],

@@ -8,7 +8,7 @@ class TeamSummaryPage extends StatelessWidget {
   final TimeOfDay time;
   final Map<String, int> positions;
 
-  TeamSummaryPage({
+  const TeamSummaryPage({
     super.key,
     required this.sport,
     required this.date,
