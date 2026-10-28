@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart';
 import 'package:sweaton/pages/join_flow/join_game_details_page.dart';
 
 class JoinedGamesPage extends StatefulWidget {
@@ -160,7 +159,7 @@ class _JoinedGamesPageState extends State<JoinedGamesPage> {
                 return ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: filteredDocs.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                  separatorBuilder: (_, _) => const SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final bookingData =
                         filteredDocs[index].data() as Map<String, dynamic>;

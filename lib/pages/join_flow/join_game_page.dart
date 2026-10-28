@@ -209,7 +209,7 @@ class _JoinGamePageState extends State<JoinGamePage> {
 
         return ListView.separated(
           itemCount: docs.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 16),
+          separatorBuilder: (_, _) => const SizedBox(height: 16),
           itemBuilder: (cxt, idx) {
             return _buildGameCard(
               cxt,

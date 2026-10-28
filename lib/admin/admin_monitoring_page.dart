@@ -56,6 +56,7 @@ class _AdminMonitoringPageState extends State<AdminMonitoringPage>
 
     if (confirmed == true) {
       await FirebaseAuth.instance.signOut();
+      if (!context.mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const LoginPage()),
         (route) => false,

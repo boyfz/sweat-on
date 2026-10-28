@@ -52,10 +52,10 @@ class _MainNavigationState extends State<MainNavigation> {
           data: NavigationBarThemeData(
             backgroundColor: Colors.white,
             indicatorColor: Colors.transparent,
-            labelTextStyle: MaterialStateProperty.resolveWith<TextStyle>((
+            labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((
               states,
             ) {
-              if (states.contains(MaterialState.selected)) {
+              if (states.contains(WidgetState.selected)) {
                 return TextStyle(
                   color: primaryColor,
                   fontWeight: FontWeight.w600,
@@ -66,10 +66,8 @@ class _MainNavigationState extends State<MainNavigation> {
                 fontWeight: FontWeight.normal,
               );
             }),
-            iconTheme: MaterialStateProperty.resolveWith<IconThemeData>((
-              states,
-            ) {
-              if (states.contains(MaterialState.selected)) {
+            iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
+              if (states.contains(WidgetState.selected)) {
                 return IconThemeData(color: primaryColor);
               }
               return IconThemeData(color: unselectedColor);

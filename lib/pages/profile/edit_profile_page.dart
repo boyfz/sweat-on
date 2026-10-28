@@ -96,19 +96,30 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       await user.updateDisplayName(name);
 
-      if (user.email != email) {
-        await user.updateEmail(email);
+      // Email only changes after the user clicks the link sent to the new
+      // address (updateEmail is deprecated and blocked on newer projects).
+      final emailChanged = user.email != email;
+      if (emailChanged) {
+        await user.verifyBeforeUpdateEmail(email);
       }
 
       await user.reload();
+      if (!mounted) return;
 
-      if (mounted) Navigator.of(context).pop(); // Close dialog
+      Navigator.of(context).pop(); // Close dialog
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully.')),
+        SnackBar(
+          content: Text(
+            emailChanged
+                ? 'Profile updated. Check $email to confirm your new email.'
+                : 'Profile updated successfully.',
+          ),
+        ),
       );
       Navigator.pop(context); // Go back to ProfilePage
     } on FirebaseAuthException catch (e) {
-      if (mounted) Navigator.of(context).pop();
+      if (!mounted) return;
+      Navigator.of(context).pop();
       String message;
       switch (e.code) {
         case 'requires-recent-login':
@@ -127,7 +138,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         context,
       ).showSnackBar(SnackBar(content: Text(message)));
     } catch (e) {
-      if (mounted) Navigator.of(context).pop();
+      if (!mounted) return;
+      Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Unexpected error: ${e.toString()}')),
       );
@@ -157,7 +169,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               onTap: _pickImage,
               child: CircleAvatar(
                 radius: 40,
-                backgroundColor: primaryColor.withOpacity(0.2),
+                backgroundColor: primaryColor.withValues(alpha: 0.2),
                 backgroundImage: imageProvider as ImageProvider?,
                 child:
                     imageProvider == null

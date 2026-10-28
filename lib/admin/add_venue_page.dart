@@ -24,7 +24,9 @@ class AddVenuePage extends StatelessWidget {
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
               child: Container(
-                color: Colors.black.withOpacity(0.1), // optional dim layer
+                color: Colors.black.withValues(
+                  alpha: 0.1,
+                ), // optional dim layer
               ),
             ),
           ),
@@ -45,7 +47,7 @@ class AddVenuePage extends StatelessWidget {
                       letterSpacing: 1.1,
                       shadows: [
                         Shadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           offset: Offset(1, 2),
                           blurRadius: 4,
                         ),
@@ -83,7 +85,7 @@ class AddVenuePage extends StatelessWidget {
                         backgroundColor: primaryColor,
                         foregroundColor: Colors.white,
                         elevation: 14,
-                        shadowColor: primaryColor.withOpacity(0.7),
+                        shadowColor: primaryColor.withValues(alpha: 0.7),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -103,7 +105,7 @@ class AddVenuePage extends StatelessWidget {
                   Text(
                     "SweatOn",
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 14,
                       fontStyle: FontStyle.italic,
                     ),

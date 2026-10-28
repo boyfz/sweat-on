@@ -144,8 +144,8 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              HomePage.primaryColor.withOpacity(0.25),
-              HomePage.primaryColor.withOpacity(0.05),
+              HomePage.primaryColor.withValues(alpha: 0.25),
+              HomePage.primaryColor.withValues(alpha: 0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -164,7 +164,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: HomePage.primaryColor.withOpacity(0.3),
+                color: HomePage.primaryColor.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
               padding: const EdgeInsets.all(12),

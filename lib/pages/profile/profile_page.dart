@@ -61,7 +61,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: [
                   CircleAvatar(
                     radius: 30,
-                    backgroundColor: primaryColor.withOpacity(0.2),
+                    backgroundColor: primaryColor.withValues(alpha: 0.2),
                     backgroundImage:
                         photoURL != null ? NetworkImage(photoURL!) : null,
                     child:

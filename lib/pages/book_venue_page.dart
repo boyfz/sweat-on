@@ -177,7 +177,8 @@ class _BookVenuePageState extends State<BookVenuePage> {
                     final type = data['type'] ?? 'Unknown';
                     final address = data['address'] ?? 'No Address';
                     final imageUrl = data['imageUrl'] ?? '';
-                    final price = data['pricePerHour'] ?? 0;
+                    final price =
+                        (data['pricePerHour'] as num?)?.toDouble() ?? 0.0;
                     final location = data['location'] as GeoPoint?;
                     final facilities = List<String>.from(
                       data['facilities'] ?? [],
@@ -271,7 +272,7 @@ class _BookVenuePageState extends State<BookVenuePage> {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  'Price per hour: RM $price',
+                                  'Price per hour: RM ${price.toStringAsFixed(2)}',
                                   style: const TextStyle(
                                     color: Colors.black87,
                                     fontWeight: FontWeight.w500,

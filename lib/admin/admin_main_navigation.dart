@@ -32,18 +32,18 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
           elevation: 0,
           indicatorColor: Colors.transparent,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-          iconTheme: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
+          iconTheme: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
               return IconThemeData(color: primaryColor);
             }
             return const IconThemeData(color: Colors.grey);
           }),
-          labelTextStyle: MaterialStateProperty.resolveWith((states) {
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
             return TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 12,
               color:
-                  states.contains(MaterialState.selected)
+                  states.contains(WidgetState.selected)
                       ? primaryColor
                       : Colors.grey,
             );

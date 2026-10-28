@@ -9,7 +9,7 @@ A sports venue booking and team management platform built with Flutter and Fireb
 - **Team Creation** — Create teams for Football/Futsal with customizable positions (Goalkeeper, Defender, Midfielder, Forward), date/time, and player count
 - **Join Games** — Discover and join existing games
 - **Profile Management** — Edit profile, view booking history, created teams, and joined games
-- **Location-Based Discovery** — Find nearby venues using geolocation and Google Maps
+- **Location-Based Discovery** — Find nearby venues and games using geolocation, with directions via Google Maps
 
 ### Admin
 - **Venue Management** — Add, edit, and manage venue listings
@@ -18,9 +18,9 @@ A sports venue booking and team management platform built with Flutter and Fireb
 ## Tech Stack
 
 - **Framework:** Flutter (Dart)
-- **Backend:** Firebase (Auth, Firestore, Storage, Cloud Functions)
-- **Maps:** Google Maps Flutter
-- **Location:** Geolocator
+- **Backend:** Firebase (Auth, Firestore, Storage)
+- **Maps:** Opens Google Maps for directions (url_launcher)
+- **Location:** Geolocator, location
 - **Platforms:** iOS, Android, Web, macOS, Windows, Linux
 
 ## Project Structure
@@ -52,7 +52,7 @@ lib/
 ```bash
 # Clone the repo
 git clone https://github.com/<your-username>/sweat-on.git
-cd SweatOn
+cd sweat-on
 
 # Install dependencies
 flutter pub get
@@ -69,4 +69,4 @@ This project uses Firebase. Ensure your `firebase_options.dart` is configured fo
 
 - Material Design 3 with custom purple brand color (`#4B39EF`)
 - Urbanist font family
-- Loading animations and staggered list transitions
+- Loading animations

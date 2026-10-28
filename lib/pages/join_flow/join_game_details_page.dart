@@ -40,8 +40,8 @@ class _JoinGameDetailsPageState extends State<JoinGameDetailsPage> {
     final String sport = team['sport'] ?? 'Game';
     final String venue = team['venueName'] ?? 'Unknown Venue';
     final String address = team['venueAddress'] ?? 'No address provided';
-    final double? latitude = team['latitude'];
-    final double? longitude = team['longitude'];
+    final double? latitude = (team['latitude'] as num?)?.toDouble();
+    final double? longitude = (team['longitude'] as num?)?.toDouble();
     final String createdBy = team['createdByName'] ?? 'Unknown';
     final String phone = team['phoneNumber'] ?? '-';
     final String startTime = team['startTime'] ?? '-';
@@ -168,7 +168,7 @@ class _JoinGameDetailsPageState extends State<JoinGameDetailsPage> {
                           ? null
                           : (v) => setState(() => selectedPosition = v),
                 );
-              }).toList(),
+              }),
               const SizedBox(height: 24),
             ],
 
@@ -289,47 +289,59 @@ class _JoinGameDetailsPageState extends State<JoinGameDetailsPage> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null || selectedPosition == null) return;
 
+      final position = selectedPosition!;
       final teamRef = FirebaseFirestore.instance
           .collection('teams')
           .doc(widget.teamId);
-      final teamSnapshot = await teamRef.get();
-      final data = teamSnapshot.data();
-      if (data == null) return;
-
-      final positions = Map<String, dynamic>.from(data['positions']);
-      final joined = data['joined'] ?? 0;
-
-      if (positions[selectedPosition!] == null ||
-          positions[selectedPosition!] <= 0) {
-        throw Exception('Selected position is no longer available');
-      }
-
-      positions[selectedPosition!] = positions[selectedPosition!] - 1;
-      await teamRef.update({'positions': positions, 'joined': joined + 1});
-
       final userRef = FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid);
+
       final userDoc = await userRef.get();
       final displayName =
           userDoc.data()?['fullName'] ?? user.email ?? 'Unknown Player';
 
-      final joinedPlayerEntry = {
-        'uid': user.uid,
-        'displayName': displayName,
-        'position': selectedPosition,
-        'joinedAt': Timestamp.now(),
-      };
+      // Run the slot check and all writes in one transaction so two players
+      // can't both take the last spot, and a failure can't leave counts
+      // out of sync with joinedPlayers.
+      await FirebaseFirestore.instance.runTransaction((tx) async {
+        final teamSnapshot = await tx.get(teamRef);
+        final data = teamSnapshot.data();
+        if (data == null) {
+          throw Exception('This game no longer exists');
+        }
 
-      await teamRef.update({
-        'joinedPlayers': FieldValue.arrayUnion([joinedPlayerEntry]),
-      });
+        if (_hasJoined(data, user.uid)) {
+          throw Exception('You have already joined this game');
+        }
 
-      await userRef.collection('bookings').doc(widget.teamId).set({
-        'teamId': widget.teamId,
-        'position': selectedPosition,
-        'joinedAt': FieldValue.serverTimestamp(),
-        'teamData': widget.team,
+        final positions = Map<String, dynamic>.from(data['positions'] ?? {});
+        final slotsLeft = positions[position];
+        if (slotsLeft is! num || slotsLeft <= 0) {
+          throw Exception('Selected position is no longer available');
+        }
+
+        positions[position] = slotsLeft - 1;
+
+        tx.update(teamRef, {
+          'positions': positions,
+          'joined': FieldValue.increment(1),
+          'joinedPlayers': FieldValue.arrayUnion([
+            {
+              'uid': user.uid,
+              'displayName': displayName,
+              'position': position,
+              'joinedAt': Timestamp.now(),
+            },
+          ]),
+        });
+
+        tx.set(userRef.collection('bookings').doc(widget.teamId), {
+          'teamId': widget.teamId,
+          'position': position,
+          'joinedAt': FieldValue.serverTimestamp(),
+          'teamData': widget.team,
+        });
       });
 
       if (mounted) {
